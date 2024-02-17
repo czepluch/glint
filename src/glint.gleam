@@ -467,8 +467,8 @@ fn execute_root(
     Error(#(snag, help)) ->
       Error(
         snag.pretty_print(snag)
-        <> "\nSee the following help text, available via the '--help' flag.\n\n"
-        <> help,
+          <> "\nSee the following help text, available via the '--help' flag.\n\n"
+          <> help,
       )
   }
 }
@@ -666,8 +666,8 @@ fn build_subcommands_help(
     Metadata(
       name: name,
       description: cmd.contents
-        |> option.map(fn(command) { command.description })
-        |> option.unwrap(""),
+      |> option.map(fn(command) { command.description })
+      |> option.unwrap(""),
     ),
     ..acc
   ]
@@ -730,27 +730,6 @@ fn args_count_to_usage_string(count: ArgsCount) -> String {
   }
 }
 
-fn args_count_to_notes_string(count: Option(ArgsCount)) -> String {
-  {
-    use count <- option.map(count)
-    "this command accepts "
-    <> case count {
-      EqArgs(0) -> "no arguments"
-      EqArgs(1) -> "1 argument"
-      EqArgs(n) -> int.to_string(n) <> " arguments"
-      MinArgs(n) -> int.to_string(n) <> " or more arguments"
-    }
-  }
-  |> option.unwrap("")
-}
-
-fn named_args_to_notes_string(named: List(String)) -> String {
-  named
-  |> list.map(fn(name) { "\"" <> name <> "\"" })
-  |> string.join(", ")
-  |> string_map(fn(s) { "this command has named arguments: " <> s })
-}
-
 fn args_to_usage_string(count: Option(ArgsCount), named: List(String)) -> String {
   case
     named
@@ -771,18 +750,6 @@ fn args_to_usage_string(count: Option(ArgsCount), named: List(String)) -> String
       })
       |> option.unwrap(named_args)
   }
-}
-
-fn usage_notes(count: Option(ArgsCount), named: List(String)) -> String {
-  [args_count_to_notes_string(count), named_args_to_notes_string(named)]
-  |> list.filter_map(fn(elem) {
-    case elem {
-      "" -> Error(Nil)
-      s -> Ok(string.append("\n* ", s))
-    }
-  })
-  |> string.concat
-  |> string_map(fn(s) { "\nnotes:" <> s })
 }
 
 /// convert a CommandHelp to a styled usage block
@@ -807,7 +774,6 @@ fn command_help_to_usage_string(help: CommandHelp, config: Config) -> String {
   <> string_map(help.meta.name, string.append(" ", _))
   <> string_map(args, fn(s) { " " <> s <> " " })
   <> flags
-  <> usage_notes(help.count_args, help.named_args)
 }
 
 // -- HELP - FUNCTIONS - STRINGIFIERS - FLAGS --
